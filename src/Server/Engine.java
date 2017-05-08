@@ -4,45 +4,49 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Engine extends Thread {
-    BufferedReader inFromUser;
-    BufferedReader inFromServer;
+    public static void main(String[] args) throws IOException, InterruptedException {
+        ServerSocket serverSocket = new ServerSocket(5909);
+        System.out.println("Starting Server...");
 
-    Socket socket;
+        Connection firstClient = new Connection(serverSocket.accept());
+        System.out.println("One client is connected.");
 
-    DataOutputStream outToServer;
+        Connection secondClient = new Connection(serverSocket.accept());
+        System.out.println("Second client is connected.");
+        firstClient.start();
+        secondClient.start();
 
-    public Engine(int PORT, String IP) throws IOException {
-        socket = new Socket(IP, PORT);
-        inFromUser = new BufferedReader(new InputStreamReader(System.in));
-        inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        outToServer = new DataOutputStream(socket.getOutputStream());
-        this.start();
-    }
+        Deck deck = new Deck();
 
-    public void run() {
+        firstClient.sendHoleCards(deck.getHoleCards());
+        secondClient.sendHoleCards(deck.getHoleCards());
+        Thread.sleep(1000);
+
+        Card[] flop = deck.getFlop();
+
+        firstClient.sendFlop(flop);
+        secondClient.sendFlop(flop);
+        Thread.sleep(1000);
+
+        Card turn = deck.getTurn();
+
+        firstClient.sendTurn(turn);
+        secondClient.sendTurn(turn);
+        Thread.sleep(1000);
+
+        Card river = deck.getRiver();
+
+        firstClient.sendRiver(river);
+        secondClient.sendRiver(river);
+
         while(true) {
-            try {
-                System.out.println(inFromServer.readLine());
-            } catch (Exception e) {
 
-            }
         }
     }
 
-    public void close() throws IOException {
-        socket.close();
-    }
-
-    public void send(String Message) throws IOException {
-        outToServer.writeBytes(Message + "\n");
-        outToServer.flush();
-    }
-
-    public void giveCardsToPlayer() {
-
-    }
-
 }
+
