@@ -8,7 +8,6 @@ public class Connection extends Thread {
 
     DataOutputStream dataOutputStream;
     DataInputStream dataInputStream;
-    ObjectOutputStream objectOutputStream;
 
     Socket socket;
 
@@ -17,7 +16,6 @@ public class Connection extends Thread {
         this.socket = socket;
         dataInputStream = new DataInputStream(socket.getInputStream());
         dataOutputStream = new DataOutputStream(socket.getOutputStream());
-        System.out.println("Thread is ready.");
     }
 
     public void Send(int a) throws IOException {
